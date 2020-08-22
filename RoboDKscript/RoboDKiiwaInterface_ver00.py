@@ -2,7 +2,7 @@
 # Python script used for realtime control of
 # KUKA iiwa robots from RoboDK simulation.
 
-# Copyright: Mohammad Safeea, 14-August-2020
+# Copyright: Mohammad Safeea, 22-August-2020
 # Tested successfully using:    RoboDK v5.0.1
 #                               Python v3.7.3
 #                               iiwa 7R820
@@ -358,7 +358,7 @@ file_menu.add_command(label='Connect',command=cmdStartControl)
 file_menu.add_command(label='Disconnect',command=cmdExitControl)
 file_menu.add_command(label='Force Disconnect',command=cmdForceDisconnet)
 file_menu.add_separator()
-my_menu.add_cascade(label='File',menu=file_menu)
+my_menu.add_cascade(label='Robot',menu=file_menu)
 file_menu.add_command(label='Exit',command=close_program)
 # add the help menu
 help_menu=Menu(my_menu)
@@ -458,6 +458,39 @@ status.pack(fill=BOTH)
 
 message='No robot is available in RoboDK simulation, add a kuka iiwa robot to the simulation then click on "select robot" button'
 select_a_Robot(message)
+try:
+    daPath=RDK.getParam('PATH_OPENSTATION')
+    path_file=os.path.join(daPath,'ToolsData.csv')
+    file=open(path_file,'r')
+    reader=csv.reader(file)
+    header=next(reader)
+    print('CSV header is:')
+    print(header)
+    data1=[]
+    for line in reader:
+        print(line)
+        if len(line)!=0:
+            data1=line
+            print(data1)
+    lengthFlag=True
+    if len(data1)!=5:
+        print('Data curropted in file, list length error')
+        lengthFlag=False
+    numericFlag=True
+    for val in data1[1:]:
+        temp=isNumeric(val)
+        if temp[0]==False:
+            numericFlag=False
+            print('Data curropted in file, value error')
+            print(val)
+    if numericFlag and lengthFlag:
+        txt_Tool_Mass.set(data1[1])
+        txt_Tool_COM_x.set(data1[2])
+        txt_Tool_COM_y.set(data1[3])
+        txt_Tool_COM_z.set(data1[4])
+    file.close()
+except:
+    print("An error happened while reading the Tool's data")
 # Notify user:
 print('GUI is on!')
 root.geometry("+{}+{}".format(80,15))
